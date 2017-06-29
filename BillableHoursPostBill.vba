@@ -3,6 +3,7 @@ Public invoiceMonth As Date
 Public invoiceMonthName As String
 Public monthSheet As Worksheet
 Public monthHeaders As Range
+Public letterDate As Date
 Public template As Worksheet
     
 Public clientName As String
@@ -60,7 +61,7 @@ Sub ComputeAndPrintReport()
     template.Rows("1:100").EntireRow.Delete
     template.Cells.Font.Name = "Arial"
     template.Cells.Font.Size = 10
-    template.Columns("A").ColumnWidth = 69
+    template.Columns("A").ColumnWidth = 68.89
     template.Columns("B").ColumnWidth = 14.14
     
     Dim editCell As Range
@@ -92,10 +93,22 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 1
     Set editCell = Offset(editCell, True) ' blank 2
     
+    Dim letterDateType As String
+    letterDateType = Range("LetterDateType").Value
+    If letterDateType = "Today" Then
+        letterDate = Date
+    End If
+    If letterDateType = "Last of month" Then
+        letterDate = DateSerial(Year(invoiceMonth), Month(invoiceMonth) + 1, 0)
+    End If
+    If letterDateType = "First of next month" Then
+        letterDate = DateSerial(Year(invoiceMonth), Month(invoiceMonth) + 1, 1)
+    End If
+    
     editCell.numberFormat = "@"
-    editCell.Value = Format(DateSerial(Year(invoiceMonth), Month(invoiceMonth) + 1, 0), "mmmm d, yyyy")
+    editCell.Value = Format(letterDate, "mmmm d, yyyy")
     SetFontHeader editCell
-    Set editCell = Offset(editCell, True)
+    Set editCell = Offset(editCell, True) ' letter date
     
     Set editCell = Offset(editCell, True) ' blank 1
     Set editCell = Offset(editCell, True) ' blank 2
@@ -105,7 +118,7 @@ Sub ComputeAndPrintReport()
     If Len(addresseeFullName) > 0 Then
         editCell.Value = addresseeFullName
         SetFontHeader editCell
-        Set editCell = Offset(editCell, True)
+        Set editCell = Offset(editCell, True) ' Addressee. Only offset if value exists
     End If
     
     Dim addresseeTitle As String
@@ -227,7 +240,7 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 2
     
     editCell.numberFormat = "@"
-    editCell.Value = Format(DateSerial(Year(invoiceMonth), Month(invoiceMonth) + 1, 0), "mmmm d, yyyy")
+    editCell.Value = Format(letterDate, "mmmm d, yyyy")
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
