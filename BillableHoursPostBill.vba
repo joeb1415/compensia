@@ -29,7 +29,7 @@ Sub ComputeAndPrintReport()
     Application.DisplayAlerts = False
     Application.ScreenUpdating = False
         
-    invoiceMonth = Range("InvoiceMonth").Value
+    invoiceMonth = Range("InvoiceMonth").value
     invoiceMonthName = Format(invoiceMonth, "mmmm yyyy")
     Set monthSheet = Worksheets(invoiceMonthName & " backup")
     Set template = Worksheets("Template")
@@ -67,7 +67,7 @@ Sub ComputeAndPrintReport()
     Dim editCell As Range
     Set editCell = Worksheets("Template").Cells(1, 1)
     
-    editCell.Value = "Compensia"
+    editCell.value = "Compensia"
     editCell.Font.Name = "Goudy Old Style"
     editCell.Font.Size = 22
     editCell.Font.ColorIndex = 9 ' maroon
@@ -76,7 +76,7 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' Compensia header
     BottomBoarder editCell.Offset(-1, 0)
     
-    editCell.Value = "125 S Market Street  Suite 1000  San Jose  California  95113  408 876 4025  408 876 4027 fax"
+    editCell.value = "125 S Market Street  Suite 1000  San Jose  California  95113  408 876 4025  408 876 4027 fax"
     editCell.Font.Name = "Tw Cen MT"
     editCell.Font.Size = 8
     Set editCell = Offset(editCell, True) ' Compensia address
@@ -85,7 +85,7 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 2
     Set editCell = Offset(editCell, True) ' blank 3
     
-    editCell.Value = "Via Email"
+    editCell.value = "Via Email"
     SetFontHeader editCell
     editCell.Font.Italic = True
     Set editCell = Offset(editCell, True)
@@ -94,7 +94,7 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 2
     
     Dim letterDateType As String
-    letterDateType = Range("LetterDateType").Value
+    letterDateType = Range("LetterDateType").value
     If letterDateType = "Today" Then
         letterDate = Date
     End If
@@ -106,7 +106,7 @@ Sub ComputeAndPrintReport()
     End If
     
     editCell.numberFormat = "@"
-    editCell.Value = Format(letterDate, "mmmm d, yyyy")
+    editCell.value = Format(letterDate, "mmmm d, yyyy")
     SetFontHeader editCell
     Set editCell = Offset(editCell, True) ' letter date
     
@@ -114,85 +114,54 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 2
     
     Dim addresseeFullName As String
-    addresseeFullName = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Addressee Full Name", Lookat:=xlWhole).Column).Text
+    addresseeFullName = ClientVLookup("Addressee Full Name")
     If Len(addresseeFullName) > 0 Then
-        editCell.Value = addresseeFullName
+        editCell.value = addresseeFullName
         SetFontHeader editCell
         Set editCell = Offset(editCell, True) ' Addressee. Only offset if value exists
     End If
     
     Dim addresseeTitle As String
-    addresseeTitle = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Addressee Title", Lookat:=xlWhole).Column).Text
+    addresseeTitle = ClientVLookup("Addressee Title")
     If Len(addresseeTitle) > 0 Then
-        editCell.Value = addresseeTitle
+        editCell.value = addresseeTitle
         SetFontHeader editCell
         Set editCell = Offset(editCell, True)
     End If
     
     Dim longClientName As String
-    longClientName = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Long Client Name", Lookat:=xlWhole).Column).Text
+    longClientName = ClientVLookup("Long Client Name")
     If Len(longClientName) > 0 Then
-        editCell.Value = longClientName
+        editCell.value = longClientName
         SetFontHeader editCell
         Set editCell = Offset(editCell, True)
     End If
     
-    Dim addressLine1 As String
-    addressLine1 = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Address Line 1", Lookat:=xlWhole).Column).Text
-    If Len(addressLine1) > 0 Then
-        editCell.Value = addressLine1
-        SetFontHeader editCell
-        Set editCell = Offset(editCell, True)
-    End If
-    
-    Dim addressLine2 As String
-    addressLine2 = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Address Line 2", Lookat:=xlWhole).Column).Text
-    If Len(addressLine2) > 0 Then
-        editCell.Value = addressLine2
-        SetFontHeader editCell
-        Set editCell = Offset(editCell, True)
-    End If
-    
-    Dim addressLine3 As String
-    addressLine3 = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Address Line 3", Lookat:=xlWhole).Column).Text
-    If Len(addressLine3) > 0 Then
-        editCell.Value = addressLine3
-        SetFontHeader editCell
-        Set editCell = Offset(editCell, True)
-    End If
-    
-    Dim addressLine4 As String
-    addressLine4 = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Address Line 4", Lookat:=xlWhole).Column).Text
-    If Len(addressLine4) > 0 Then
-        editCell.Value = addressLine4
-        SetFontHeader editCell
-        Set editCell = Offset(editCell, True)
-    End If
-    
+    Set editCell = Print4LineAddress(editCell)
     Set editCell = Offset(editCell, True) ' blank 1
     
     Dim addresseeShortName As String
-    addresseeShortName = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Addressee Short Name", Lookat:=xlWhole).Column).Text
-    editCell.Value = "Dear " & Trim(addresseeShortName) & ","
+    addresseeShortName = ClientVLookup("Addressee Short Name")
+    editCell.value = "Dear " & Trim(addresseeShortName) & ","
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
     Set editCell = Offset(editCell, True) ' blank 1
     
-    editCell.Value = monthSheet.Cells(clientRow, monthHeaders.Find("Message Body", Lookat:=xlWhole).Column)
+    editCell.value = monthSheet.Cells(clientRow, monthHeaders.Find("Message Body", Lookat:=xlWhole).Column)
     SetFontHeader editCell
     SetMultiLineCellHeight editCell
     Set editCell = Offset(editCell, True)
     
     Set editCell = Offset(editCell, True) ' blank 1
     
-    editCell.Value = "Please let me know if you have any questions."
+    editCell.value = "Please let me know if you have any questions."
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
     Set editCell = Offset(editCell, True) ' blank 1
     
-    editCell.Value = "Sincerely,"
+    editCell.value = "Sincerely,"
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
@@ -200,11 +169,11 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 2
     
     Dim managerName As String
-    managerName = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Manager Name", Lookat:=xlWhole).Column).Text
-    editCell.Value = compensiaStaffSheet.Cells(compensiaStaffKey.Find(managerName, Lookat:=xlWhole).row, compensiaStaffHeaders.Find("Signature Name", Lookat:=xlWhole).Column)
+    managerName = ClientVLookup("Manager Name")
+    editCell.value = compensiaStaffSheet.Cells(compensiaStaffKey.Find(managerName, Lookat:=xlWhole).row, compensiaStaffHeaders.Find("Signature Name", Lookat:=xlWhole).Column)
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
-    editCell.Value = compensiaStaffSheet.Cells(compensiaStaffKey.Find(managerName, Lookat:=xlWhole).row, compensiaStaffHeaders.Find("Title", Lookat:=xlWhole).Column)
+    editCell.value = compensiaStaffSheet.Cells(compensiaStaffKey.Find(managerName, Lookat:=xlWhole).row, compensiaStaffHeaders.Find("Title", Lookat:=xlWhole).Column)
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
@@ -212,10 +181,10 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 2
     
     Dim cc As String
-    cc = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Client cc's", Lookat:=xlWhole).Column).Text
+    cc = ClientVLookup("Client cc's")
     If Len(cc) > 0 Then
         cc = Replace(cc, "" & Chr(10) & "", "" & Chr(10) & "      ")
-        editCell.Value = "cc: " & cc
+        editCell.value = "cc: " & cc
         SetFontHeader editCell
         SetMultiLineCellHeight editCell
         Set editCell = Offset(editCell, True)
@@ -240,7 +209,9 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 2
     
     editCell.numberFormat = "@"
-    editCell.Value = Format(letterDate, "mmmm d, yyyy")
+    Dim lastOfMonth As Date ' invoice always has last of month, regardless of letterDate
+    lastOfMonth = DateSerial(Year(invoiceMonth), Month(invoiceMonth) + 1, 0)
+    editCell.value = Format(lastOfMonth, "mmmm d, yyyy")
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
@@ -248,37 +219,43 @@ Sub ComputeAndPrintReport()
     Set editCell = Offset(editCell, True) ' blank 2
     
     Dim invoiceNumber As String
-    invoiceNumber = monthSheet.Cells(clientRow, monthHeaders.Find("Invoice #", Lookat:=xlWhole).Column).Value
+    invoiceNumber = monthSheet.Cells(clientRow, monthHeaders.Find("Invoice #", Lookat:=xlWhole).Column).value
     If Len(invoiceNumber) > 0 Then
-        editCell.Value = "INVOICE #" & invoiceNumber ' Invoice line
+        editCell.value = "INVOICE #" & invoiceNumber ' Invoice line
         SetFontHeader editCell
         editCell.Font.Bold = True
         Set editCell = Offset(editCell, True)
         Set editCell = Offset(editCell, True) ' blank 1
     End If
     
-    editCell.Value = "Client: " & clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Long Client Name", Lookat:=xlWhole).Column).Text
+    editCell.value = "Client: " & ClientVLookup("Long Client Name")
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
+    Dim includeAddressOnInvoice As String
+    includeAddressOnInvoice = ClientVLookup("Include Address On Invoice")
+    If includeAddressOnInvoice = "Yes" Then
+        Set editCell = Print4LineAddress(editCell)
+    End If
+    
     Set editCell = Offset(editCell, True) ' blank 1
 
-    editCell.Value = "Period: " & invoiceMonthName
+    editCell.value = "Period: " & invoiceMonthName
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
     Set editCell = Offset(editCell, True) ' blank 1
 
     Dim poNumber As String
-    poNumber = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Purchase Order", Lookat:=xlWhole).Column).Value
+    poNumber = ClientVLookup("Purchase Order")
     If Len(poNumber) > 0 Then
-        editCell.Value = "PO Number: " & poNumber
+        editCell.value = "PO Number: " & poNumber
         SetFontHeader editCell
         Set editCell = Offset(editCell, True)
         Set editCell = Offset(editCell, True) ' blank 1
     End If
     
-    editCell.Value = "Payment terms: " & clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Payment Terms", Lookat:=xlWhole).Column).Text
+    editCell.value = "Payment terms: " & ClientVLookup("Payment Terms")
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
@@ -299,11 +276,11 @@ Sub ComputeAndPrintReport()
     Dim travel As Double
     Dim cell As Range
     
-    editCell.Value = "Professional fees:"
+    editCell.value = "Professional fees:"
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
-    invoiceType = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Invoice Type", Lookat:=xlWhole).Column).Text
+    invoiceType = ClientVLookup("Invoice Type")
     totalFees = 0
     Dim firstLineItem As Boolean: firstLineItem = True
     For Each cell In clientHourlyData
@@ -353,7 +330,7 @@ Sub ComputeAndPrintReport()
     SetLineItemValue editCell, "          Total professional fees:", totalFees, "$#,##0.00"
     Set editCell = Offset(editCell, False)
     
-    editCell.Value = "Expenses:"
+    editCell.value = "Expenses:"
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
@@ -384,7 +361,7 @@ Sub ComputeAndPrintReport()
         Set editCell = Offset(editCell, True) ' blank 1
     Loop
     
-    editCell.Value = "Please remit payment to:"
+    editCell.value = "Please remit payment to:"
     SetFontHeader editCell
     editCell.Font.Bold = True
     editCell.Font.Underline = True
@@ -393,19 +370,19 @@ Sub ComputeAndPrintReport()
     
     Set editCell = Offset(editCell, True) ' blank 1
     
-    editCell.Value = "Compensia, Inc."
+    editCell.value = "Compensia, Inc."
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
-    editCell.Value = "125 S. Market Street"
+    editCell.value = "125 S. Market Street"
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
-    editCell.Value = "Suite 1000"
+    editCell.value = "Suite 1000"
     SetFontHeader editCell
     Set editCell = Offset(editCell, True)
     
-    editCell.Value = "San Jose, CA  95113"
+    editCell.value = "San Jose, CA  95113"
     SetFontHeader editCell
     Set editCell = editCell.Offset(0, 1) ' don't merge. Offset right. This is lastCell.
     
@@ -426,6 +403,45 @@ Sub ComputeAndPrintReport()
     Application.DisplayAlerts = True
     Application.ScreenUpdating = True
 End Sub
+Function Print4LineAddress(cell As Range) As Range
+
+    Dim addressLine1 As String
+    addressLine1 = ClientVLookup("Address Line 1")
+    If Len(addressLine1) > 0 Then
+        cell.value = addressLine1
+        SetFontHeader cell
+        Set cell = Offset(cell, True)
+    End If
+    
+    Dim addressLine2 As String
+    addressLine2 = ClientVLookup("Address Line 2")
+    If Len(addressLine2) > 0 Then
+        cell.value = addressLine2
+        SetFontHeader cell
+        Set cell = Offset(cell, True)
+    End If
+    
+    Dim addressLine3 As String
+    addressLine3 = ClientVLookup("Address Line 3")
+    If Len(addressLine3) > 0 Then
+        cell.value = addressLine3
+        SetFontHeader cell
+        Set cell = Offset(cell, True)
+    End If
+    
+    Dim addressLine4 As String
+    addressLine4 = ClientVLookup("Address Line 4")
+    If Len(addressLine4) > 0 Then
+        cell.value = addressLine4
+        SetFontHeader cell
+        Set cell = Offset(cell, True)
+    End If
+    
+    Set Print4LineAddress = cell
+End Function
+Function ClientVLookup(columnName As String) As String
+    ClientVLookup = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find(columnName, Lookat:=xlWhole).Column).Text
+End Function
 Sub BottomBoarder(cell As Range)
     With cell.MergeArea.Borders(xlEdgeBottom)
         .LineStyle = xlContinuous
@@ -437,15 +453,15 @@ Sub SetFontHeader(cell As Range)
     cell.Font.Name = "Franklin Gothic Book"
     cell.Font.Size = 11
 End Sub
-Sub SetLineItemValue(cell As Range, lineItemName As String, Value As Double, numberFormat As String)
+Sub SetLineItemValue(cell As Range, lineItemName As String, value As Double, numberFormat As String)
     With cell
-        .Value = lineItemName
+        .value = lineItemName
         .ClearFormats
         .Font.Name = "Arial"
         .Font.Size = 10
         
         With .Offset(0, 1)
-            .Value = Value
+            .value = value
             .numberFormat = numberFormat
             .HorizontalAlignment = xlRight
             .Font.Name = "Arial"
@@ -496,13 +512,13 @@ Sub PrintPage(printTo As String)
 '
 
     Dim filepath As String
-    filepath = ThisWorkbook.path & "\" & invoiceMonthName
+    filepath = ThisWorkbook.Path & "\" & invoiceMonthName
     If Dir(filepath, vbDirectory) = "" Then
         MkDir (filepath)
     End If
     
     Dim managerName As String
-    managerName = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Manager Name", Lookat:=xlWhole).Column)
+    managerName = ClientVLookup("Manager Name")
     filepath = filepath & "\" & managerName
     If Dir(filepath, vbDirectory) = "" Then
         MkDir (filepath)
@@ -515,7 +531,7 @@ Sub PrintPage(printTo As String)
     clientName = Range("ClientName").Text
     clientRow = monthSheet.Cells(1, 1).EntireColumn.Find(clientName, Lookat:=xlWhole).row
     Set monthHeaders = monthSheet.Cells(2, 1).EntireRow
-    invoiceNumber = monthSheet.Cells(clientRow, monthHeaders.Find("Invoice #", Lookat:=xlWhole).Column).Value
+    invoiceNumber = monthSheet.Cells(clientRow, monthHeaders.Find("Invoice #", Lookat:=xlWhole).Column).value
     If Len(invoiceNumber) > 0 Then
         filename = filename & " " & invoiceNumber
     End If
@@ -662,18 +678,18 @@ Sub PrintPage(printTo As String)
     
     If printTo = "Email Draft - Existing PDF" Then
         Dim emailTo As String
-        emailTo = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Email 1", Lookat:=xlWhole).Column)
+        emailTo = ClientVLookup("Email 1")
         
         Dim emailCc As String
         Dim emailCcList As String
         For i = 2 To 5
-            emailCc = clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Email " & i, Lookat:=xlWhole).Column)
+            emailCc = ClientVLookup("Email " & i)
             emailCcList = emailCcList & emailCc & ";"
         Next i
         
         Dim bodyText As String
         bodyText = "Dear "
-        bodyText = bodyText & clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Addressee Email Name", Lookat:=xlWhole).Column)
+        bodyText = bodyText & ClientVLookup("Addressee Email Name")
         bodyText = bodyText & ", " & vbNewLine & vbNewLine
         bodyText = bodyText & Range("EmailMessageBody").Text
         
@@ -693,16 +709,27 @@ Sub PrintPage(printTo As String)
     
 End Sub
 Sub SaveAllXlsxAsPdfMaster()
-    invoiceMonth = Range("InvoiceMonth").Value
+    invoiceMonth = Range("InvoiceMonth").value
     invoiceMonthName = Format(invoiceMonth, "mmmm yyyy")
     
     Dim principalName As String
     principalName = Range("PrincipalName").Text
     
+    Dim filepath As String
+    filepath = ThisWorkbook.Path & "\" & invoiceMonthName
+    If Dir(filepath, vbDirectory) = "" Then
+        MkDir (filepath)
+    End If
+    
+    filepath = filepath & "\" & principalName
+    If Dir(filepath, vbDirectory) = "" Then
+        MkDir (filepath)
+    End If
+    
     If principalName = "Name" Then
-        SaveAllXlsxAsPdf ThisWorkbook.path & "\" & invoiceMonthName
+        SaveAllXlsxAsPdf ThisWorkbook.Path & "\" & invoiceMonthName
     Else
-        SaveAllXlsxAsPdf ThisWorkbook.path & "\" & invoiceMonthName & "\" & principalName
+        SaveAllXlsxAsPdf ThisWorkbook.Path & "\" & invoiceMonthName & "\" & principalName
     End If
 End Sub
 Sub SaveAllXlsxAsPdf(filepath As String)
@@ -722,12 +749,12 @@ Sub SaveAllXlsxAsPdf(filepath As String)
     Set objFolder = objFSO.GetFolder(filepath)
     
     For Each objSubFolder In objFolder.subfolders
-        SaveAllXlsxAsPdf objSubFolder.path ' recursive
+        SaveAllXlsxAsPdf objSubFolder.Path ' recursive
     Next objSubFolder
     
     For Each objFile In objFolder.Files
         If Right(objFile.Name, 5) = ".xlsx" And Left(objFile.Name, 2) <> "~$" Then
-            SaveXlsxAsPdf objFile.path
+            SaveXlsxAsPdf objFile.Path
         End If
     Next objFile
 
@@ -759,16 +786,16 @@ Sub SaveXlsxAsPdf(xlsxPath As String)
         
 End Sub
 Sub ReadAllRevisedBodiesMaster()
-    invoiceMonth = Range("InvoiceMonth").Value
+    invoiceMonth = Range("InvoiceMonth").value
     invoiceMonthName = Format(invoiceMonth, "mmmm yyyy")
     
     Dim principalName As String
     principalName = Range("PrincipalName").Text
     
     If principalName = "Name" Then
-        ReadAllRevisedBodies ThisWorkbook.path & "\" & invoiceMonthName
+        ReadAllRevisedBodies ThisWorkbook.Path & "\" & invoiceMonthName
     Else
-        ReadAllRevisedBodies ThisWorkbook.path & "\" & invoiceMonthName & "\" & principalName
+        ReadAllRevisedBodies ThisWorkbook.Path & "\" & invoiceMonthName & "\" & principalName
     End If
 End Sub
 Sub ReadAllRevisedBodies(filepath As String)
@@ -788,12 +815,12 @@ Sub ReadAllRevisedBodies(filepath As String)
     Set Folder = fso.GetFolder(filepath)
     
     For Each subFolder In Folder.subfolders
-        ReadAllRevisedBodies subFolder.path ' recursive
+        ReadAllRevisedBodies subFolder.Path ' recursive
     Next subFolder
     
     For Each file In Folder.Files
         If Right(file.Name, 5) = ".xlsx" Then
-            ReadRevisedBody file.path
+            ReadRevisedBody file.Path
         End If
     Next file
     
@@ -822,7 +849,7 @@ Sub ReadRevisedBody(filepath As String)
     newApplication.Quit
     Set newApplication = Nothing
     
-    invoiceMonth = Range("InvoiceMonth").Value
+    invoiceMonth = Range("InvoiceMonth").value
     invoiceMonthName = Format(invoiceMonth, "mmmm yyyy")
     Set monthSheet = Worksheets(invoiceMonthName & " backup")
     
@@ -837,14 +864,14 @@ Sub ReadRevisedBody(filepath As String)
     Set clientDataKey = clientDataSheet.Cells(1, 1).EntireColumn
     
     With monthSheet.Cells(clientRow, monthHeaders.Find("Message Body", Lookat:=xlWhole).Column)
-        .Value = newBody
+        .value = newBody
         .WrapText = False
     End With
-    With clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Message Body", Lookat:=xlWhole).Column)
-        .Value = newBody
+    With ClientVLookup("Message Body")
+        .value = newBody
         .WrapText = False
     End With
-    clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Message Body Last Updated", Lookat:=xlWhole).Column).Value = invoiceMonth
+    clientDataSheet.Cells(clientDataKey.Find(clientName, Lookat:=xlWhole).row, clientDataHeaders.Find("Message Body Last Updated", Lookat:=xlWhole).Column).value = invoiceMonth
     
 End Sub
 Sub PrintForPrincipal()
@@ -855,7 +882,7 @@ Sub PrintForPrincipal()
 ' 2014-10-28
 '
 
-    invoiceMonth = Range("InvoiceMonth").Value
+    invoiceMonth = Range("InvoiceMonth").value
     invoiceMonthName = Format(invoiceMonth, "mmmm yyyy")
     Set monthSheet = Worksheets(invoiceMonthName & " backup")
     
@@ -895,7 +922,7 @@ Sub PrintForPrincipal()
         End If
         
         If clientDataSheet.Cells(clientDataCell.row, managerNameColumn).Text = principalName Or principalName = "Name" Then
-            Range("ClientName").Value = clientName
+            Range("ClientName").value = clientName
             ComputeAndPrintReport
         End If
 nextIteration:
